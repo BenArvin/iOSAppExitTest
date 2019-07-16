@@ -66,22 +66,22 @@ static __attribute__((always_inline)) void asm_exit() {
     } else if ([title isEqualToString:@"assert"]) {
         assert(nil);
     } else if ([title isEqualToString:@"signal SIGKILL"]) {
-        signal(SIGKILL, NULL);
+        signal(SIGKILL, NULL);//卡死不退出
     } else if ([title isEqualToString:@"signal SIGQUIT"]) {
-        signal(SIGQUIT, NULL);
+        signal(SIGQUIT, NULL);//卡死不退出
     } else if ([title isEqualToString:@"kill"]) {
         kill(getpid(), SIGINT);
     } else if ([title isEqualToString:@"fopen"]) {
-        fopen("123456", "123");
+        fopen("123456", "123");//卡死不退出
     } else if ([title isEqualToString:@"NSThread +exit"]) {
-        [NSThread exit];
+        [NSThread exit];//卡死不退出
     } else if ([title isEqualToString:@"_terminateWithStatus"]) {
         [[UIApplication sharedApplication] performSelector:NSSelectorFromString(@"_terminateWithStatus:") withObject:@(0)];
     } else if ([title isEqualToString:@"terminateWithSuccess"]) {
         [[UIApplication sharedApplication] performSelector:NSSelectorFromString(@"terminateWithSuccess")];
     } else if ([title isEqualToString:@"killall"]) {
         //        system("killall -9 TestAPP");
-        popen("killall -9 CrashTestAPP", "r");
+        popen("killall -9 CrashTestAPP", "r");//卡死不退出
     } else if ([title isEqualToString:@"asm_exit"]) {
         asm_exit();
     }
