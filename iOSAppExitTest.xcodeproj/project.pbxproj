@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E453A3CB2318BEA400AB5385 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = E453A3CA2318BEA400AB5385 /* Utils.m */; };
 		E4ED2E2922D5D3AD009BA65F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E4ED2E2822D5D3AD009BA65F /* AppDelegate.m */; };
 		E4ED2E2C22D5D3AD009BA65F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4ED2E2B22D5D3AD009BA65F /* ViewController.m */; };
 		E4ED2E3122D5D3AE009BA65F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4ED2E3022D5D3AE009BA65F /* Assets.xcassets */; };
@@ -33,6 +34,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E453A3C92318BEA400AB5385 /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		E453A3CA2318BEA400AB5385 /* Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
+		E48D6B312317815D00104663 /* my_ptrace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = my_ptrace.h; sourceTree = "<group>"; };
 		E4ED2E2422D5D3AD009BA65F /* iOSAppExitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSAppExitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4ED2E2722D5D3AD009BA65F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		E4ED2E2822D5D3AD009BA65F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -101,6 +105,9 @@
 				E4ED2E2822D5D3AD009BA65F /* AppDelegate.m */,
 				E4ED2E2A22D5D3AD009BA65F /* ViewController.h */,
 				E4ED2E2B22D5D3AD009BA65F /* ViewController.m */,
+				E453A3C92318BEA400AB5385 /* Utils.h */,
+				E453A3CA2318BEA400AB5385 /* Utils.m */,
+				E48D6B312317815D00104663 /* my_ptrace.h */,
 				E4ED2E3022D5D3AE009BA65F /* Assets.xcassets */,
 				E4ED2E3522D5D3AE009BA65F /* Info.plist */,
 				E4ED2E3622D5D3AE009BA65F /* main.m */,
@@ -257,6 +264,7 @@
 				E4ED2E2C22D5D3AD009BA65F /* ViewController.m in Sources */,
 				E4ED2E3722D5D3AE009BA65F /* main.m in Sources */,
 				E4ED2E2922D5D3AD009BA65F /* AppDelegate.m in Sources */,
+				E453A3CB2318BEA400AB5385 /* Utils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
