@@ -10,12 +10,13 @@
 #include <stdlib.h>
 #import "my_ptrace.h"
 #import <sys/syscall.h>
+#import <sys/sysctl.h>
 
 static __attribute__((always_inline)) void asm_exit() {
 #ifdef __arm64__
     __asm__("mov X0, #0\n"
             "mov X16, #1\n"
-            "svc #0x80\n"//0x80触发中断去找w16执行
+            "svc #0x80\n"
             "mov x1, #0\n"
             "mov sp, x1\n"
             "mov x29, x1\n"
@@ -28,7 +29,7 @@ static __attribute__((always_inline)) void asm_exit_sassy() {
 #ifdef __arm64__
     __asm__("mov X0, #0\n"
             "mov X16, #1\n"
-            "svc #0x80\n"//0x80触发中断去找w16执行
+            "svc #128\n"
             );
 #endif
 }
@@ -40,7 +41,7 @@ static __attribute__((always_inline)) void asm_ptrace() {
             "mov X2, #0\n"
             "mov X3, #0\n"
             "mov X16, #26\n"
-            "svc #0x80\n"//0x80触发中断去找w16执行
+            "svc #0x80\n"
             "mov x1, #0\n"
             "mov sp, x1\n"
             "mov x29, x1\n"
@@ -57,7 +58,7 @@ static __attribute__((always_inline)) void asm_ptrace_sassy() {
             "mov X2, #0\n"
             "mov X3, #0\n"
             "mov X16, #26\n"
-            "svc #0x80\n"//0x80触发中断去找w16执行
+            "svc #0x80\n"
             );
 #endif
 }
@@ -73,6 +74,63 @@ static __attribute__((always_inline)) void ret() {
 #endif
 }
 
+bool sysctl_check() {
+    int name[4];
+    name[0] = CTL_KERN;
+    name[1] = KERN_PROC;
+    name[2] = KERN_PROC_PID;
+    name[3] = getpid();
+    
+    struct kinfo_proc info;
+    size_t info_size = sizeof(info);
+    
+    int error = sysctl(name, sizeof(name)/sizeof(*name), &info, &info_size, 0, 0);
+//    int error = syscall(SYS_sysctl, name, sizeof(name)/sizeof(*name), &info, &info_size, 0, 0);
+    if (error != 0) {
+        return false;
+    }
+    return ((info.kp_proc.p_flag & P_TRACED) !=0);
+}
+
+//TODO: asm version of sysctl
+//static __attribute__((always_inline)) void asm_sysctl_check() {
+//#ifdef __arm64__
+//    __asm__();
+//#endif
+//}
+
+//useless, because ipa download from appstore doesn't contain embedded.mobileprovision file
+void checkCodesign(NSString *devID){
+    NSString *embeddedPath = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"];
+    NSString *embeddedProvisioning = [NSString stringWithContentsOfFile:embeddedPath encoding:NSASCIIStringEncoding error:nil];
+    NSArray *embeddedProvisioningLines = [embeddedProvisioning componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    for (int i = 0; i < embeddedProvisioningLines.count; i++) {
+        if ([embeddedProvisioningLines[i] rangeOfString:@"application-identifier"].location != NSNotFound) {
+            
+            NSInteger fromPosition = [embeddedProvisioningLines[i+1] rangeOfString:@"<string>"].location+8;
+            
+            NSInteger toPosition = [embeddedProvisioningLines[i+1] rangeOfString:@"</string>"].location;
+            
+            NSRange range;
+            range.location = fromPosition;
+            range.length = toPosition - fromPosition;
+            
+            NSString *fullIdentifier = [embeddedProvisioningLines[i+1] substringWithRange:range];
+            NSArray *identifierComponents = [fullIdentifier componentsSeparatedByString:@"."];
+            NSString *appIdentifier = [identifierComponents firstObject];
+            
+            if (![appIdentifier isEqual:devID]) {
+                //do something
+            }
+            break;
+        }
+    }
+}
+
+int isattyCheck() {
+    return isatty(STDOUT_FILENO);
+}
+
 @interface ViewController ()<UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic) UITableView *tableView;
@@ -86,7 +144,7 @@ static __attribute__((always_inline)) void ret() {
     [super viewDidLoad];
     [[self navigationController] setNavigationBarHidden:YES];
     
-    self.datas = @[@"exit", @"abort", @"assert",  @"signal SIGKILL", @"signal SIGQUIT", @"kill", @"fopen", @"NSThread +exit", @"_terminateWithStatus", @"terminateWithSuccess", @"killall", @"asm_exit", @"asm_exit_sassy", @"ptrace", @"asm_ptrace", @"asm_ptrace_sassy", @"ret"];
+    self.datas = @[@"exit", @"abort", @"assert",  @"signal SIGKILL", @"signal SIGQUIT", @"kill", @"fopen", @"NSThread +exit", @"_terminateWithStatus", @"terminateWithSuccess", @"killall", @"asm_exit", @"asm_exit_sassy", @"ptrace", @"asm_ptrace", @"asm_ptrace_sassy", @"ret", @"sysctl", @"isatty"];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -146,6 +204,10 @@ static __attribute__((always_inline)) void ret() {
         asm_ptrace_sassy();
     } else if ([title isEqualToString:@"ret"]) {
         ret();//退出，EXC_BAD_ACCESS
+    } else if ([title isEqualToString:@"sysctl"]) {
+        [self showAlertView:@"sysctl" content:[NSString stringWithFormat:@"%d", sysctl_check()]];
+    } else if ([title isEqualToString:@"isatty"]) {
+        [self showAlertView:@"isatty" content:[NSString stringWithFormat:@"%d", isattyCheck()]];
     }
 }
 
@@ -162,6 +224,12 @@ static __attribute__((always_inline)) void ret() {
     }
     cell.textLabel.text = [self.datas objectAtIndex:indexPath.row];
     return cell;
+}
+
+- (void)showAlertView:(NSString *)title content:(NSString *)content {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:content preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 @end
